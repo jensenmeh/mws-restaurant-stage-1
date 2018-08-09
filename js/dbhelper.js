@@ -1,6 +1,15 @@
 /**
  * Common database helper functions.
  */
+
+
+//create db
+var dbPromise = idb.open('json-db', 1, function(upgradeDb) {
+  var keyValStore = upgradeDb.createObjectStore('restaurants', {
+    keyPath: 'id'
+  });
+});
+
 class DBHelper {
 
   /**
@@ -16,17 +25,41 @@ class DBHelper {
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
-    fetch(DBHelper.DATABASE_URL)
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(restaurants) {
-      callback(null, restaurants);
-    })
-    .catch(function(error) {
-      console.log(error.message);
-    })
 
+    //get all restaurant data from db
+    dbPromise.then(function(db) {
+      var restaurantsData = db.transaction('restaurants').objectStore('restaurants');
+      return restaurantsData.getAll().then(function(restaurants) {
+        if(restaurants.length !== 0) {
+          callback(null, restaurants);
+        } else {
+          fetchData();
+        }
+      })
+    });
+
+    //fetch data from server if db is empty and populate db with restaurant data
+    function fetchData() {
+      fetch(DBHelper.DATABASE_URL)
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(restaurants) {
+        dbPromise.then(function(db) {
+          var tx = db.transaction('restaurants', 'readwrite');
+          var keyValStore = tx.objectStore('restaurants');
+          restaurants.forEach(function(restaurant) {
+            keyValStore.put(restaurant);
+          });
+        });
+        callback(null, restaurants);
+      })
+      .catch(function(error) {
+        console.log(error.message);
+      })   
+
+      
+    }
   }
 
   /**
@@ -148,7 +181,11 @@ class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    return (`/img/${restaurant.photograph}.jpg`);
+    if(restaurant.photograph !== undefined) {
+      return (`/img/${restaurant.photograph}`);
+    } else {
+      return (`/img/${restaurant.id}`);
+    };
   }
 
   /**
