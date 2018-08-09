@@ -140,7 +140,7 @@ createRestaurantHTML = (restaurant) => {
 
   const image = document.createElement('img');
   image.className = 'restaurant-img';
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  image.src = `${DBHelper.imageUrlForRestaurant(restaurant)}-thumbnail.jpg`;
   image.alt = restaurant.name + " in " + restaurant.neighborhood;
   li.append(image);
 
@@ -190,3 +190,6 @@ if ('serviceWorker' in navigator) {
     console.log('Registration failed with ' + error);
   });
 }
+
+
+
