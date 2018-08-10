@@ -1,3 +1,4 @@
+/* Responsive CSS code*/
 #breadcrumb, #map-container, .filter-options, #restaurants-list, #restaurant-container, #reviews-container {
 	display: flex;
 	flex-wrap: wrap;
