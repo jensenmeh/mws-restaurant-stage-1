@@ -144,10 +144,10 @@ createRestaurantHTML = (restaurant) => {
   image.src = "/img/placeholder.jpg";
   image.setAttribute('data-src', `${DBHelper.imageUrlForRestaurant(restaurant)}-thumbnail.jpg`);
   image.setAttribute('data-srcset', `${DBHelper.imageUrlForRestaurant(restaurant)}-thumbnail.jpg`);
-  image.alt = restaurant.name + " in " + restaurant.neighborhood;
+  image.alt = `Image of ${restaurant.name} in ${restaurant.neighborhood}`;
   li.append(image);
 
-  const name = document.createElement('h1');
+  const name = document.createElement('h2');
   name.innerHTML = restaurant.name;
   li.append(name);
 
