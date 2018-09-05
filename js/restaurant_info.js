@@ -123,7 +123,7 @@ createReviewHTML = (review) => {
   li.appendChild(name);
 
   const date = document.createElement('p');
-  date.innerHTML = review.date;
+  date.innerHTML = `Last Updated: ${getDate(review.updatedAt)}`;
   li.appendChild(date);
 
   const rating = document.createElement('p');
@@ -163,4 +163,25 @@ getParameterByName = (name, url) => {
   if (!results[2])
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+//format JavaScript default date to something more user friendly
+getDate = (date) => {
+
+  date = new Date(date);
+  
+  const month = ["January",
+                 "February",
+                 "March",
+                 "April",
+                 "May",
+                 "June",
+                 "July",
+                 "August",
+                 "September",
+                 "October",
+                 "November",
+                 "December"];
+
+  return `${month[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 }
