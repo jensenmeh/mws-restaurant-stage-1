@@ -21,25 +21,32 @@ class DBHelper {
     return `http://localhost:${port}/restaurants`;
   }
 
+  static get DATABASE_URL_REVIEWS() {
+    const port = 1337 // Change this to your server port
+    return `http://localhost:${port}/reviews`;
+  }
+
+
   /**
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
 
     //get all restaurant data from db
-    dbPromise.then(function(db) {
-      var restaurantsData = db.transaction('restaurants').objectStore('restaurants');
-      return restaurantsData.getAll().then(function(restaurants) {
-        if(restaurants.length !== 0) {
-          callback(null, restaurants);
-        } else {
-          fetchData();
-        }
-      })
-    });
+    // dbPromise.then(function(db) {
+    //   var restaurantsData = db.transaction('restaurants').objectStore('restaurants');
+    //   return restaurantsData.getAll().then(function(restaurants) {
+    //     if(restaurants.length !== 0) {
+    //       callback(null, restaurants);
+    //     } else {
+    //       fetchRestaurantsData();
+    //     }
+    //   })
+    // });
 
+    fetchRestaurantsData();
     //fetch data from server if db is empty and populate db with restaurant data
-    function fetchData() {
+    function fetchRestaurantsData() {
       fetch(DBHelper.DATABASE_URL)
       .then(function(response) {
         return response.json();
@@ -52,13 +59,59 @@ class DBHelper {
             keyValStore.put(restaurant);
           });
         });
-        callback(null, restaurants);
+        console.log(restaurants)
+        callback(null, restaurants) || fetchRestaurantReviews(restaurants);
       })
       .catch(function(error) {
         console.log(error.message);
       })   
 
       
+    }
+
+    //fetch reviews data for all restaurants
+    function fetchRestaurantReviews(restaurants) {
+      fetch(DBHelper.DATABASE_URL_REVIEWS)
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(reviews) {
+        // dbPromise.then(function(db) {
+        //   var tx = db.transaction('restaurants', 'readwrite');
+        //   var keyValStore = tx.objectStore('restaurants');
+        //   restaurants.forEach(function(restaurant) {
+        //     keyValStore.put(restaurant);
+        //   });
+        // });
+
+        console.log(reviews);
+
+        restaurants.forEach(function(restaurant, index) {
+          restaurant.review = [];
+          for(var review of reviews) {
+            if(review.restaurant_id === index + 1) {
+              restaurant.review.push(review);
+            }
+          }
+        });
+
+        // for(var restaurant of restaurants) {
+        //   restaurant.review = [];
+        //   var index = Number(restaurant) + 1
+        //   for(var review of reviews) {
+        //     if(review.restaurant_id = index) {
+        //       restaurant.review = review;
+        //     }
+        //   }
+        // }
+        //pass all data back to callback
+        callback(null, restaurants);
+
+        console.log(restaurants);
+      })
+      .catch(function(error) {
+        console.log(error.message);
+      }) 
     }
   }
 
