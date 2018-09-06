@@ -4,7 +4,7 @@ var clean = require('gulp-clean');
 var cleanCSS = require('gulp-clean-css');
 var browserSync = require('browser-sync').create();
 
-gulp.task('browser-sync', function() {
+gulp.task('serve', function() {
     browserSync.init({
         server: {
             baseDir: "./dist/"
@@ -45,14 +45,13 @@ gulp.task('sw', function () {
 });
 
 gulp.task('img', function () {
-  return gulp.src('./img/**/*.jpg')
+  return gulp.src('./img/**/')
   	.pipe(gulp.dest('./dist/img'));
 });
 
-
 gulp.task('sass', function () {
   return gulp.src('./sass/**/*.scss')
-    .pipe(sass().on('error', sass.logError))
+    .pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError))
     .pipe(gulp.dest('./dist/css'));
 });
  

@@ -131,6 +131,7 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
   });
   addMarkersToMap();
   lazyLoadImages();
+  // favoriteRestaurant();
 }
 
 /**
@@ -139,13 +140,49 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
 createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
 
+  const div = document.createElement('div');
+  div.className = 'restaurant-container';
+
+  //insert heart icon
+  const favorite = document.createElement('i');
+  //check if restaurant has been favorited
+    if(restaurant.is_favorite = true) {
+      favorite.className = 'restaurant-fav fas fa-heart fa-2x selected';
+    } else {
+      favorite.className = 'restaurant-fav far fa-heart fa-2x';
+    }
+
+  //add click event to select favorite restaurant
+  favorite.addEventListener('click', function(event) {
+    event.restaurant_id = restaurant.id;
+
+    if(event.srcElement.className === "restaurant-fav far fa-heart fa-2x") {
+      event.srcElement.className = "restaurant-fav fas fa-heart fa-2x selected";
+      fetch(`http://localhost:1337/restaurants/${event.restaurant_id}/?is_favorite=true`,
+        {
+          method: 'PUT'
+        });
+    } else {
+      event.srcElement.className = "restaurant-fav far fa-heart fa-2x";
+      fetch(`http://localhost:1337/restaurants/${event.restaurant_id}/?is_favorite=false`,
+        {
+          method: 'PUT'
+        });
+    }
+  });
+
+  div.append(favorite);
+
   const image = document.createElement('img');
   image.className = 'lazy restaurant-img';
   image.src = "/img/placeholder.jpg";
   image.setAttribute('data-src', `${DBHelper.imageUrlForRestaurant(restaurant)}-thumbnail.jpg`);
   image.setAttribute('data-srcset', `${DBHelper.imageUrlForRestaurant(restaurant)}-thumbnail.jpg`);
   image.alt = `Image of ${restaurant.name} in ${restaurant.neighborhood}`;
-  li.append(image);
+  div.append(image);
+
+  //add imgs
+  li.append(div);
 
   const name = document.createElement('h2');
   name.innerHTML = restaurant.name;
