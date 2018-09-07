@@ -25,7 +25,7 @@ gulp.task('reload', ['default'],function (done) {
 });
 
 
-gulp.task('default', ['html', 'sass', 'js', 'sw', 'img'], function() {
+gulp.task('default', ['html', 'sass', 'js', 'sw', 'img', 'manifest'], function() {
 
 });
 
@@ -47,6 +47,11 @@ gulp.task('sw', function () {
 gulp.task('img', function () {
   return gulp.src('./img/**/')
   	.pipe(gulp.dest('./dist/img'));
+});
+
+gulp.task('manifest', function () {
+  return gulp.src('./manifest.json')
+    .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('sass', function () {

@@ -146,7 +146,7 @@ createRestaurantHTML = (restaurant) => {
   //insert heart icon
   const favorite = document.createElement('i');
   //check if restaurant has been favorited
-    if(restaurant.is_favorite = true) {
+    if(restaurant.is_favorite === "true") {
       favorite.className = 'restaurant-fav fas fa-heart fa-2x selected';
     } else {
       favorite.className = 'restaurant-fav far fa-heart fa-2x';

@@ -37,11 +37,12 @@ class DBHelper {
     dbPromise.then(function(db) {
       var restaurantsData = db.transaction('restaurants').objectStore('restaurants');
       return restaurantsData.getAll().then(function(restaurants) {
-        if(restaurants.length !== 0) {
-          callback(null, restaurants);
-        } else {
-          fetchRestaurantsData();
-        }
+        // if(restaurants.length !== 0) {
+        //   callback(null, restaurants);
+        // } else {
+        //   fetchRestaurantsData();
+        // }
+        callback(null, restaurants) || fetchRestaurantsData();
       })
     });
 
