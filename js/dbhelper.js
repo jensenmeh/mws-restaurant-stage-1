@@ -33,18 +33,22 @@ class DBHelper {
    */
   static fetchRestaurants(callback) {
 
+    fetchData();
+
     // get all restaurant data from db
-    dbPromise.then(function(db) {
-      var restaurantsData = db.transaction('restaurants').objectStore('restaurants');
-      return restaurantsData.getAll().then(function(restaurants) {
-        // if(restaurants.length !== 0) {
-        //   callback(null, restaurants);
-        // } else {
-        //   fetchRestaurantsData();
-        // }
-        callback(null, restaurants) || fetchRestaurantsData();
-      })
-    });
+    function fetchData() {
+      dbPromise.then(function(db) {
+        var restaurantsData = db.transaction('restaurants').objectStore('restaurants');
+        return restaurantsData.getAll().then(function(restaurants) {
+          if(restaurants.length !== 0) {
+            callback(null, restaurants);
+          } else {
+            fetchRestaurantsData();
+            fetchData();
+          }
+        })
+      }); 
+    }
 
     //fetch data from server if db is empty and populate db with restaurant data
     function fetchRestaurantsData() {
@@ -89,12 +93,29 @@ class DBHelper {
           });
         });
 
-        //pass all data back
-        callback(null, restaurants);
       })
       .catch(function(error) {
         console.log(error.message);
       }) 
+    }
+  }
+
+  //update db when favorite button in clicked
+  static updateDB(id, favorite) {
+    dbPromise.then(function(db) {
+      return db.transaction('restaurants')
+        .objectStore('restaurants').get(id);
+    }).then(function(restaurant) {
+      restaurant.is_favorite = favorite;
+      writeDB(restaurant);
+    });
+
+    function writeDB(restaurant) {
+      dbPromise.then(function(db) {
+        var tx = db.transaction('restaurants', 'readwrite');
+        var keyValStore = tx.objectStore('restaurants');
+          keyValStore.put(restaurant);
+      });
     }
   }
 

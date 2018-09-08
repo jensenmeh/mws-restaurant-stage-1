@@ -131,7 +131,6 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
   });
   addMarkersToMap();
   lazyLoadImages();
-  // favoriteRestaurant();
 }
 
 /**
@@ -153,23 +152,7 @@ createRestaurantHTML = (restaurant) => {
     }
 
   //add click event to select favorite restaurant
-  favorite.addEventListener('click', function(event) {
-    event.restaurant_id = restaurant.id;
-
-    if(event.srcElement.className === "restaurant-fav far fa-heart fa-2x") {
-      event.srcElement.className = "restaurant-fav fas fa-heart fa-2x selected";
-      fetch(`http://localhost:1337/restaurants/${event.restaurant_id}/?is_favorite=true`,
-        {
-          method: 'PUT'
-        });
-    } else {
-      event.srcElement.className = "restaurant-fav far fa-heart fa-2x";
-      fetch(`http://localhost:1337/restaurants/${event.restaurant_id}/?is_favorite=false`,
-        {
-          method: 'PUT'
-        });
-    }
-  });
+  favoriteRestaurant(favorite, restaurant.id);
 
   div.append(favorite);
 
@@ -219,17 +202,17 @@ addMarkersToMap = (restaurants = self.restaurants) => {
   });
 }
 
-//Register Serviceworker
-// if ('serviceWorker' in navigator) {
-//   navigator.serviceWorker.register('sw.js', {scope: '/'})
-//   .then(function(reg) {
-//     // registration worked
-//     console.log('Registration succeeded. Scope is ' + reg.scope);
-//   }).catch(function(error) {
-//     // registration failed
-//     console.log('Registration failed with ' + error);
-//   });
-// }
+// Register Serviceworker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js', {scope: '/'})
+  .then(function(reg) {
+    // registration worked
+    console.log('Registration succeeded. Scope is ' + reg.scope);
+  }).catch(function(error) {
+    // registration failed
+    console.log('Registration failed with ' + error);
+  });
+}
 
 //Implement lazy loading of images
 lazyLoadImages = () => {
@@ -254,4 +237,37 @@ lazyLoadImages = () => {
   } else {
     // Possibly fall back to a more compatible method here
   }
+}
+
+//event listener for favorite button
+function favoriteRestaurant(element, id) {
+  element.addEventListener('click', function(event) {
+    event.restaurant_id = id;
+
+    if(event.srcElement.className === "restaurant-fav far fa-heart fa-2x") {
+
+      //change styling to indicate favorite
+      event.srcElement.className = "restaurant-fav fas fa-heart fa-2x selected";
+
+      //change is_favorite value in db
+      fetch(`http://localhost:1337/restaurants/${event.restaurant_id}/?is_favorite=true`,
+        {
+          method: 'PUT'
+        });
+
+      DBHelper.updateDB(id, "true");
+    } else {
+
+      //change styling to indicate favorite
+      event.srcElement.className = "restaurant-fav far fa-heart fa-2x";
+
+      //change is_favorite value in db
+      fetch(`http://localhost:1337/restaurants/${event.restaurant_id}/?is_favorite=false`,
+        {
+          method: 'PUT'
+        });
+
+      DBHelper.updateDB(id, "false");
+    }
+  });
 }
