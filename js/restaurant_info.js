@@ -69,6 +69,9 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   }
   // fill reviews
   fillReviewsHTML();
+
+  // create review submission form
+  createReviewForm(restaurant.id);
 }
 
 /**
@@ -137,6 +140,74 @@ createReviewHTML = (review) => {
   li.setAttribute("tabindex", "0");
 
   return li;
+}
+
+createReviewForm = (id) => {
+  const container = document.getElementById('newReviews-container');
+  const title = document.createElement('h3');
+  title.innerHTML = 'Leave a Review';
+  container.appendChild(title);
+
+  const form = document.createElement('form');
+  form.setAttribute('method', "post");
+  form.setAttribute('action',"http://localhost:1337/reviews/");
+
+  //create restaurant id input field
+  const idInput = document.createElement('input');
+  idInput.setAttribute('id', "restaurant_id");
+  idInput.setAttribute('name', "restaurant_id");
+  idInput.setAttribute('type', "hidden");
+  idInput.setAttribute('value', id);
+  form.appendChild(idInput);
+
+  //create name input field
+  const nameDiv = document.createElement('div');
+  const nameLabel = document.createElement('label');
+  nameLabel.setAttribute('for', "name");
+  nameLabel.textContent = "Name: ";
+  const nameInput = document.createElement('input');
+  nameInput.setAttribute('type', "text");
+  nameInput.setAttribute('id', "name");
+  nameInput.setAttribute('name', "name");
+  nameDiv.appendChild(nameLabel);
+  nameDiv.appendChild(nameInput);
+  form.appendChild(nameDiv);
+
+  //create rating field
+  const ratingDiv = document.createElement('div');
+  const ratingLabel = document.createElement('label');
+  ratingLabel.setAttribute('for', "rating");
+  ratingLabel.textContent = "Rating: ";
+  const ratingInput = document.createElement('input');
+  ratingInput.setAttribute('type', "text");
+  ratingInput.setAttribute('id', "rating");
+  ratingInput.setAttribute('name', "rating");
+  ratingDiv.appendChild(ratingLabel);
+  ratingDiv.appendChild(ratingInput);
+  form.appendChild(ratingDiv);
+
+
+  //create comment field
+  const commentDiv = document.createElement('div');
+  const commentLabel = document.createElement('label');
+  commentLabel.setAttribute('for', "comment");
+  commentLabel.textContent = "Comment: ";
+  const commentInput = document.createElement('textarea');
+  commentInput.setAttribute('id', "comment");
+  commentInput.setAttribute('name', "comments");
+  commentDiv.appendChild(commentLabel);
+  commentDiv.appendChild(commentInput);
+  form.appendChild(commentDiv);
+
+  //create submit button
+  const submitDiv = document.createElement('div');
+  const submitButton = document.createElement('button');
+  submitButton.setAttribute('type', "submit");
+  submitButton.textContent = "Submit";
+  submitDiv.appendChild(submitButton);
+  form.appendChild(submitDiv);
+
+  container.appendChild(form);
 }
 
 /**

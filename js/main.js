@@ -203,16 +203,16 @@ addMarkersToMap = (restaurants = self.restaurants) => {
 }
 
 // Register Serviceworker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js', {scope: '/'})
-  .then(function(reg) {
-    // registration worked
-    console.log('Registration succeeded. Scope is ' + reg.scope);
-  }).catch(function(error) {
-    // registration failed
-    console.log('Registration failed with ' + error);
-  });
-}
+// if ('serviceWorker' in navigator) {
+//   navigator.serviceWorker.register('sw.js', {scope: '/'})
+//   .then(function(reg) {
+//     // registration worked
+//     console.log('Registration succeeded. Scope is ' + reg.scope);
+//   }).catch(function(error) {
+//     // registration failed
+//     console.log('Registration failed with ' + error);
+//   });
+// }
 
 //Implement lazy loading of images
 lazyLoadImages = () => {
@@ -255,6 +255,7 @@ function favoriteRestaurant(element, id) {
           method: 'PUT'
         });
 
+      //update idb entry
       DBHelper.updateDB(id, "true");
     } else {
 
@@ -267,6 +268,7 @@ function favoriteRestaurant(element, id) {
           method: 'PUT'
         });
 
+      //update idb entry
       DBHelper.updateDB(id, "false");
     }
   });
