@@ -242,7 +242,6 @@ lazyLoadImages = () => {
 //event listener for favorite button
 function favoriteRestaurant(element, id) {
   element.addEventListener('click', function(event) {
-    event.restaurant_id = id;
 
     if(event.srcElement.className === "restaurant-fav far fa-heart fa-2x") {
 
@@ -250,7 +249,7 @@ function favoriteRestaurant(element, id) {
       event.srcElement.className = "restaurant-fav fas fa-heart fa-2x selected";
 
       //change is_favorite value in db
-      fetch(`http://localhost:1337/restaurants/${event.restaurant_id}/?is_favorite=true`,
+      fetch(`http://localhost:1337/restaurants/${id}/?is_favorite=true`,
         {
           method: 'PUT'
         });
@@ -263,7 +262,7 @@ function favoriteRestaurant(element, id) {
       event.srcElement.className = "restaurant-fav far fa-heart fa-2x";
 
       //change is_favorite value in db
-      fetch(`http://localhost:1337/restaurants/${event.restaurant_id}/?is_favorite=false`,
+      fetch(`http://localhost:1337/restaurants/${id}/?is_favorite=false`,
         {
           method: 'PUT'
         });

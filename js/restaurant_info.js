@@ -213,7 +213,7 @@ createReviewForm = () => {
   ratingLabel.setAttribute('for', "rating");
   ratingLabel.textContent = "Rating: ";
   const ratingInput = document.createElement('input');
-  ratingInput.setAttribute('type', "text");
+  ratingInput.setAttribute('type', "number");
   ratingInput.setAttribute('id', "rating");
   ratingInput.setAttribute('name', "rating");
   ratingDiv.appendChild(ratingLabel);
@@ -236,12 +236,16 @@ createReviewForm = () => {
   //create submit button
   const submitDiv = document.createElement('div');
   const submitButton = document.createElement('button');
-  submitButton.setAttribute('type', "submit");
+  submitButton.setAttribute('type', "button");
+  submitButton.setAttribute('id', "submitButton");
   submitButton.textContent = "Submit";
   submitDiv.appendChild(submitButton);
   form.appendChild(submitDiv);
 
   container.appendChild(form);
+
+  //add event listener for posting a new review
+  createReview();
 }
 
 /**
@@ -289,4 +293,44 @@ getDate = (date) => {
                  "December"];
 
   return `${month[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+}
+
+createReview = () => {
+  const button = document.getElementById('submitButton');
+  button.addEventListener('click', function(event) {
+
+    var data = {};
+
+    const form = event.srcElement.form.elements;
+    for(var input of form) {
+      if(input.type !== "button") {
+        if(input.name === "restaurant_id" || input.name === "rating") {
+          data[input.name] = Number(input.value);
+        } else {
+          data[input.name] = input.value;
+        }
+      }
+    }
+
+    //create time entries to match format in server
+    data['createdAt'] = Date.now();
+    data['updatedAt'] = Date.now();
+
+    //pass json object to server
+    fetch(DBHelper.DATABASE_URL_REVIEWS, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    }).then(function(response) {
+      return response.json();
+    }).then(function(review) {
+      //update local idb
+      DBHelper.addReview(review);
+    }).catch(function(error) {
+      console.log(error.message);
+    }) 
+
+  });
 }

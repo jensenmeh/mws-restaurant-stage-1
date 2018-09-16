@@ -27,7 +27,7 @@ class DBHelper {
   //URL to fetch all reviews data
   static get DATABASE_URL_REVIEWS() {
     const port = 1337 // Change this to your server port
-    return `http://localhost:${port}/reviews`;
+    return `http://localhost:${port}/reviews/`;
   }
 
 
@@ -80,7 +80,7 @@ class DBHelper {
   /**
    * Fetch all restaurants.
    */
-  static fetchReviews(callback) {
+  static fetchReviews(id, callback) {
 
     fetchData();
 
@@ -89,10 +89,12 @@ class DBHelper {
       dbPromise.then(function(db) {
         var reviewsData = db.transaction('reviews').objectStore('reviews');
         return reviewsData.getAll().then(function(reviews) {
-          if(reviews.length !== 0) {
-            callback(null, reviews);
+          const review = reviews.filter(r => r.restaurant_id == id);
+          if(review.length !== 0) {
+            console.log(review);
+            callback(null, review);
           } else {
-            fetchReviewsData();
+            fetchReviewsData(id);
             fetchData();
           }
         })
@@ -100,8 +102,8 @@ class DBHelper {
     }
 
     //fetch reviews data
-    function fetchReviewsData() {
-      fetch(DBHelper.DATABASE_URL_REVIEWS)
+    function fetchReviewsData(id) {
+      fetch(`${DBHelper.DATABASE_URL_REVIEWS}?restaurant_id=${id}`)
       .then(function(response) {
         return response.json();
       })
@@ -110,8 +112,9 @@ class DBHelper {
         dbPromise.then(function(db) {
           var tx = db.transaction('reviews', 'readwrite');
           var keyValStore = tx.objectStore('reviews');
-          reviews.forEach(function(reviews) {
-            keyValStore.put(reviews);
+          reviews.forEach(function(review) {
+            keyValStore.put(review);
+            console.log(review);
           });
         });
       })
@@ -140,6 +143,17 @@ class DBHelper {
     }
   }
 
+  //add new reviews to idb
+  static addReview(review) {
+    dbPromise.then(function(db) {
+      var tx = db.transaction('reviews', 'readwrite');
+      var keyValStore = tx.objectStore('reviews');
+        keyValStore.put(review);
+    });
+    //reload page
+    window.location.reload();
+  }
+
   /**
    * Fetch a restaurant by its ID.
    */
@@ -161,7 +175,7 @@ class DBHelper {
 
   static fetchReviewsById(id, callback) {
     // fetch all reviews with proper error handling.
-    DBHelper.fetchReviews((error, reviews) => {
+    DBHelper.fetchReviews(id, (error, reviews) => {
       if (error) {
         callback(error, null);
       } else {
