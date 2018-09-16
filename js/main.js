@@ -256,7 +256,7 @@ function favoriteRestaurant(element, id) {
         });
 
       //update idb entry
-      DBHelper.updateDB(id, "true");
+      DBHelper.updateFavorite(id, "true");
     } else {
 
       //change styling to indicate favorite
@@ -269,7 +269,7 @@ function favoriteRestaurant(element, id) {
         });
 
       //update idb entry
-      DBHelper.updateDB(id, "false");
+      DBHelper.updateFavorite(id, "false");
     }
   });
 }

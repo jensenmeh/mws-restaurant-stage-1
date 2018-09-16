@@ -5,7 +5,10 @@
 
 //create db
 var dbPromise = idb.open('json-db', 1, function(upgradeDb) {
-  var keyValStore = upgradeDb.createObjectStore('restaurants', {
+  var restaurantsStore = upgradeDb.createObjectStore('restaurants', {
+    keyPath: 'id'
+  });
+  var reviewsStore = upgradeDb.createObjectStore('reviews', {
     keyPath: 'id'
   });
 });
@@ -57,33 +60,6 @@ class DBHelper {
         return response.json();
       })
       .then(function(restaurants) {
-        //pass restaurant data to combine with reviews data
-        fetchRestaurantReviews(restaurants);
-      })
-      .catch(function(error) {
-        console.log(error.message);
-      })   
-
-      
-    }
-
-    //fetch reviews data for all restaurants
-    function fetchRestaurantReviews(restaurants) {
-      fetch(DBHelper.DATABASE_URL_REVIEWS)
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(reviews) {
-        //match reviews with same restaurant id and push into the array
-        restaurants.forEach(function(restaurant, index) {
-          restaurant.reviews = [];
-          for(var review of reviews) {
-            if(review.restaurant_id === index + 1) {
-              restaurant.reviews.push(review);
-            }
-          }
-        });
-
         //add restaurants and reviews data into IDB
         dbPromise.then(function(db) {
           var tx = db.transaction('restaurants', 'readwrite');
@@ -92,7 +68,52 @@ class DBHelper {
             keyValStore.put(restaurant);
           });
         });
+      })
+      .catch(function(error) {
+        console.log(error.message);
+      })   
 
+      
+    }
+  }
+
+  /**
+   * Fetch all restaurants.
+   */
+  static fetchReviews(callback) {
+
+    fetchData();
+
+    // get all restaurant data from db
+    function fetchData() {
+      dbPromise.then(function(db) {
+        var reviewsData = db.transaction('reviews').objectStore('reviews');
+        return reviewsData.getAll().then(function(reviews) {
+          if(reviews.length !== 0) {
+            callback(null, reviews);
+          } else {
+            fetchReviewsData();
+            fetchData();
+          }
+        })
+      }); 
+    }
+
+    //fetch reviews data
+    function fetchReviewsData() {
+      fetch(DBHelper.DATABASE_URL_REVIEWS)
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(reviews) {
+        //add restaurants and reviews data into IDB
+        dbPromise.then(function(db) {
+          var tx = db.transaction('reviews', 'readwrite');
+          var keyValStore = tx.objectStore('reviews');
+          reviews.forEach(function(reviews) {
+            keyValStore.put(reviews);
+          });
+        });
       })
       .catch(function(error) {
         console.log(error.message);
@@ -101,7 +122,7 @@ class DBHelper {
   }
 
   //update db when favorite button in clicked
-  static updateDB(id, favorite) {
+  static updateFavorite(id, favorite) {
     dbPromise.then(function(db) {
       return db.transaction('restaurants')
         .objectStore('restaurants').get(id);
@@ -133,6 +154,22 @@ class DBHelper {
           callback(null, restaurant);
         } else { // Restaurant does not exist in the database
           callback('Restaurant does not exist', null);
+        }
+      }
+    });
+  }
+
+  static fetchReviewsById(id, callback) {
+    // fetch all reviews with proper error handling.
+    DBHelper.fetchReviews((error, reviews) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        const review = reviews.filter(r => r.restaurant_id == id);
+        if (review) { // Got the restaurant
+          callback(null, review);
+        } else { // Review does not exist in the database
+          callback('Review does not exist', null);
         }
       }
     });

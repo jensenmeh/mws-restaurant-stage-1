@@ -46,6 +46,31 @@ fetchRestaurantFromURL = (callback) => {
 }
 
 /**
+ * Get reviews for current restaurant.
+ */
+fetchReviewsFromURL = (callback) => {
+  if (self.reviews) { // restaurant already fetched!
+    callback(null, self.reviews)
+    return;
+  }
+  const id = getParameterByName('id');
+  if (!id) { // no id found in URL
+    error = 'No restaurant id in URL'
+    callback(error, null);
+  } else {
+    DBHelper.fetchReviewsById(id, (error, reviews) => {
+      self.reviews = reviews;
+      if (!reviews) {
+        console.error(error);
+        return;
+      }
+      // fillRestaurantHTML();
+      callback(null, reviews)
+    });
+  }
+}
+
+/**
  * Create restaurant HTML and add it to the webpage
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
@@ -71,7 +96,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   fillReviewsHTML();
 
   // create review submission form
-  createReviewForm(restaurant.id);
+  createReviewForm();
 }
 
 /**
@@ -97,23 +122,31 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
-  const container = document.getElementById('reviews-container');
-  const title = document.createElement('h3');
-  title.innerHTML = 'Reviews';
-  container.appendChild(title);
+fillReviewsHTML = () => {
+  fetchReviewsFromURL((error, reviews) => {
+    if(error) { // Got an error!
+      console.log(error);
+    } else {
+      const reviews = self.reviews;
 
-  if (!reviews) {
-    const noReviews = document.createElement('p');
-    noReviews.innerHTML = 'No reviews yet!';
-    container.appendChild(noReviews);
-    return;
-  }
-  const ul = document.getElementById('reviews-list');
-  reviews.forEach(review => {
-    ul.appendChild(createReviewHTML(review));
-  });
-  container.appendChild(ul);
+      const container = document.getElementById('reviews-container');
+      const title = document.createElement('h3');
+      title.innerHTML = 'Reviews';
+      container.appendChild(title);
+
+      if (!reviews) {
+        const noReviews = document.createElement('p');
+        noReviews.innerHTML = 'No reviews yet!';
+        container.appendChild(noReviews);
+        return;
+      }
+      const ul = document.getElementById('reviews-list');
+      reviews.forEach(review => {
+        ul.appendChild(createReviewHTML(review));
+      });
+      container.appendChild(ul);
+    }
+  });  
 }
 
 /**
@@ -142,7 +175,7 @@ createReviewHTML = (review) => {
   return li;
 }
 
-createReviewForm = (id) => {
+createReviewForm = () => {
   const container = document.getElementById('newReviews-container');
   const title = document.createElement('h3');
   title.innerHTML = 'Leave a Review';
@@ -153,6 +186,7 @@ createReviewForm = (id) => {
   form.setAttribute('action',"http://localhost:1337/reviews/");
 
   //create restaurant id input field
+  const id = getParameterByName('id');
   const idInput = document.createElement('input');
   idInput.setAttribute('id', "restaurant_id");
   idInput.setAttribute('name', "restaurant_id");
