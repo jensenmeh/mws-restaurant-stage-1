@@ -196,39 +196,77 @@ createReviewForm = () => {
 
   //create name input field
   const nameDiv = document.createElement('div');
+  nameDiv.setAttribute('id', 'reviewer-name');
   const nameLabel = document.createElement('label');
   nameLabel.setAttribute('for', "name");
-  nameLabel.textContent = "Name: ";
+  nameLabel.setAttribute('display', "hidden");
   const nameInput = document.createElement('input');
   nameInput.setAttribute('type', "text");
   nameInput.setAttribute('id', "name");
   nameInput.setAttribute('name', "name");
+  nameInput.setAttribute('placeholder', "Name");
   nameDiv.appendChild(nameLabel);
   nameDiv.appendChild(nameInput);
   form.appendChild(nameDiv);
 
-  //create rating field
-  const ratingDiv = document.createElement('div');
-  const ratingLabel = document.createElement('label');
-  ratingLabel.setAttribute('for', "rating");
-  ratingLabel.textContent = "Rating: ";
-  const ratingInput = document.createElement('input');
-  ratingInput.setAttribute('type', "number");
-  ratingInput.setAttribute('id', "rating");
-  ratingInput.setAttribute('name', "rating");
-  ratingDiv.appendChild(ratingLabel);
-  ratingDiv.appendChild(ratingInput);
-  form.appendChild(ratingDiv);
+  //create rating selection
+  const radioDiv = document.createElement('div');
+  radioDiv.setAttribute('id', 'radioDiv');
+  for(var i = 1; i <= 5; i++) {
+    const radioButton = document.createElement('input');
+    radioButton.setAttribute('type', "radio");
+    radioButton.setAttribute('id', `rating-${i}`);
+    radioButton.setAttribute('name', "rating");
+    radioButton.setAttribute('value', i);
+    radioButton.classList = "ratingButton";
+    const radioLabel = document.createElement('label');
+    radioLabel.setAttribute('name', 'rating');
+    const radioIcon = document.createElement('i');
+    radioIcon.setAttribute('value', `rating-${i}`);
+    radioIcon.setAttribute('id', `${i}-star`);
+    radioIcon.classList = "far fa-star fa-lg";
+    //add event listener to select correct radio button
+    radioIcon.addEventListener('click', (event) => {
+      for(var i = 0; i < event.srcElement.attributes.length; i++) {
+        if (event.srcElement.attributes[i].name === 'value') {
+          const ratingId = event.srcElement.attributes[i].value;
+          const starRating = document.getElementById(ratingId);
+          starRating.checked = true;
+        }
+      }
+      //Change styling to indicate rating selection
+      for(var i = 1; i <= 5; i ++) {
+        document.getElementById(`${i}-star`).classList = 'far fa-star fa-lg';
+      }
 
+      switch (event.srcElement.id) {
+        case '5-star':
+          document.getElementById('5-star').classList = 'fas fa-star fa-lg';
+        case '4-star':
+          document.getElementById('4-star').classList = 'fas fa-star fa-lg';
+        case '3-star':
+          document.getElementById('3-star').classList = 'fas fa-star fa-lg';
+        case '2-star':
+          document.getElementById('2-star').classList = 'fas fa-star fa-lg';
+        case '1-star':
+          document.getElementById('1-star').classList = 'fas fa-star fa-lg';
+      }
+    });
+    radioLabel.appendChild(radioIcon);
+    radioDiv.appendChild(radioLabel);
+    radioDiv.appendChild(radioButton);
+  }
+  form.appendChild(radioDiv);
 
   //create comment field
   const commentDiv = document.createElement('div');
   const commentLabel = document.createElement('label');
   commentLabel.setAttribute('for', "comment");
-  commentLabel.textContent = "Comment: ";
+  commentLabel.setAttribute('display', "hidden");
   const commentInput = document.createElement('textarea');
   commentInput.setAttribute('id', "comment");
   commentInput.setAttribute('name', "comments");
+  commentInput.setAttribute('placeholder', "Please leave a review!");
   commentDiv.appendChild(commentLabel);
   commentDiv.appendChild(commentInput);
   form.appendChild(commentDiv);
@@ -298,17 +336,24 @@ getDate = (date) => {
 createReview = () => {
   const button = document.getElementById('submitButton');
   button.addEventListener('click', function(event) {
-
     var data = {};
 
     const form = event.srcElement.form.elements;
     for(var input of form) {
       if(input.type !== "button") {
-        if(input.name === "restaurant_id" || input.name === "rating") {
+        //check if the input is restaurant id
+        if(input.name === "restaurant_id") {
           data[input.name] = Number(input.value);
+        } else if(input.name === "rating") {
+          //check if the input is rating
+          if(input.checked === true) {
+            data[input.name] = Number(input.value);
+          }
         } else {
-          data[input.name] = input.value;
+          //everything else
+          data[input.name] = input.value;         
         }
+
       }
     }
 

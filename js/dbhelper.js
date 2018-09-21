@@ -91,7 +91,6 @@ class DBHelper {
         return reviewsData.getAll().then(function(reviews) {
           const review = reviews.filter(r => r.restaurant_id == id);
           if(review.length !== 0) {
-            console.log(review);
             callback(null, review);
           } else {
             fetchReviewsData(id);
@@ -114,7 +113,6 @@ class DBHelper {
           var keyValStore = tx.objectStore('reviews');
           reviews.forEach(function(review) {
             keyValStore.put(review);
-            console.log(review);
           });
         });
       })

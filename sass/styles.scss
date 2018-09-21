@@ -214,7 +214,7 @@ nav h1 a {
   bottom: 0;
 }
 #restaurant-name {
-  color: #f18200;
+  color: #00538c;
   font-family: Arial,sans-serif;
   font-size: 20pt;
   font-weight: 200;
@@ -244,13 +244,38 @@ nav h1 a {
   text-transform: uppercase;
   width: 100%;
 }
-#restaurant-container, #reviews-container {
+#restaurant-container, #reviews-container, #newReviews-container {
   border-bottom: 1px solid #d9d9d9;
   border-top: 1px solid #fff;
   padding: 20px 40px 20px;
 }
-#reviews-container {
-  padding: 30px 40px 80px;
+#reviews-container, #newReviews-container {
+  padding: 30px 40px 30px;
+}
+#newReviews-container {
+  div {
+    padding: 5px 20px;
+  }
+
+  label {
+    font-weight: bold;
+  }
+  
+  #reviewer-name {
+    display: inline-block;
+  }
+
+  input.ratingButton {
+    display: none;
+  }
+
+  #radioDiv {
+    float: right;
+  }
+
+  #comment {
+    width: 100%;
+  }
 }
 #reviews-container h2 {
   color: #f58500;
