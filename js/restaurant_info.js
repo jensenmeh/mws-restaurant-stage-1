@@ -205,6 +205,7 @@ createReviewForm = () => {
   nameInput.setAttribute('id', "name");
   nameInput.setAttribute('name', "name");
   nameInput.setAttribute('placeholder', "Name");
+  nameInput.setAttribute('aria-label', "Name");
   nameDiv.appendChild(nameLabel);
   nameDiv.appendChild(nameInput);
   form.appendChild(nameDiv);
@@ -267,6 +268,7 @@ createReviewForm = () => {
   commentInput.setAttribute('id', "comment");
   commentInput.setAttribute('name', "comments");
   commentInput.setAttribute('placeholder', "Please leave a review!");
+  commentInput.setAttribute('aria-label', "Comment-Box");
   commentDiv.appendChild(commentLabel);
   commentDiv.appendChild(commentInput);
   form.appendChild(commentDiv);
@@ -362,20 +364,31 @@ createReview = () => {
     data['updatedAt'] = Date.now();
 
     //pass json object to server
-    fetch(DBHelper.DATABASE_URL_REVIEWS, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers:{
-        'Content-Type': 'application/json'
-      }
-    }).then(function(response) {
-      return response.json();
-    }).then(function(review) {
-      //update local idb
-      DBHelper.addReview(review);
-    }).catch(function(error) {
-      console.log(error.message);
-    }) 
+    addReview();
+
+    function addReview() {
+      fetch(DBHelper.DATABASE_URL_REVIEWS, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      }).then(function(response) {
+        return response.json();
+      }).then(function(review) {
+        //update local idb
+        DBHelper.addReview(review);
+      }).catch(function(error) {
+        if(error.message === "Failed to fetch") {
+          setTimeout(() => {
+            addReview();
+            console.log("Attempting to send review");  
+          }, 5000);
+        } else {
+          console.log(error.message);
+        }
+      })      
+    }
 
   });
 }
