@@ -22,13 +22,13 @@ self.addEventListener('fetch', function(event) {
 	//serve restaurant page if url starts with restaurant.html
 	if(requestUrl.pathname.startsWith('/restaurant.html')) {
 		event.respondWith(caches.match('/restaurant.html'))
+	} else {
+		//check all other cache items; else go fetch from the network
+		event.respondWith(
+			caches.match(event.request).then(function(response) {
+				if(response) return response;
+				return fetch(event.request);
+			})
+		)
 	}
-
-	//check all other cache items; else go fetch from the network
-	event.respondWith(
-		caches.match(event.request).then(function(response) {
-			if(response) return response;
-			return fetch(event.request);
-		})
-	)
 });
