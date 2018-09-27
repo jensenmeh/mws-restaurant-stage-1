@@ -363,10 +363,14 @@ createReview = () => {
     data['createdAt'] = Date.now();
     data['updatedAt'] = Date.now();
 
-    //pass json object to server
-    addReview();
+    if(navigator.onLine) {
+      addReviewToDB();
+    } else {
+      window.addEventListener('online', addReviewToDB);
+    }
 
-    function addReview() {
+    //pass json object to server
+    function addReviewToDB() {
       fetch(DBHelper.DATABASE_URL_REVIEWS, {
         method: "POST",
         body: JSON.stringify(data),
@@ -377,18 +381,10 @@ createReview = () => {
         return response.json();
       }).then(function(review) {
         //update local idb
-        DBHelper.addReview(review);
+        DBHelper.addReview(review); 
       }).catch(function(error) {
-        if(error.message === "Failed to fetch") {
-          setTimeout(() => {
-            addReview();
-            console.log("Attempting to send review");  
-          }, 5000);
-        } else {
-          console.log(error.message);
-        }
-      })      
+        console.log(error.message); 
+      })
     }
-
   });
 }

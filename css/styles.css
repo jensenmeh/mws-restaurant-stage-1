@@ -10,6 +10,7 @@ body {
   background-color: #f3f3f3;
   margin: 0;
   position: relative;
+  min-width: 360px;
 }
 
 ul, li {
@@ -446,5 +447,11 @@ nav h1 a {
   }
   #restaurants-list li {
     width: 270px;
+  }
+}
+
+@media screen and (max-width: 451px) {
+  #newReviews-container #radioDiv {
+    float: none;
   }
 }
