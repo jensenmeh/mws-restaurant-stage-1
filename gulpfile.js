@@ -25,7 +25,7 @@ gulp.task('reload', ['default'],function (done) {
 });
 
 
-gulp.task('default', ['html', 'sass', 'js', 'sw', 'img', 'manifest'], function() {
+gulp.task('default', ['html', 'sass', 'css', 'webfonts', 'js', 'sw', 'img', 'manifest'], function() {
 
 });
 
@@ -58,6 +58,16 @@ gulp.task('sass', function () {
   return gulp.src('./sass/**/*.scss')
     .pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError))
     .pipe(gulp.dest('./dist/css'));
+});
+
+gulp.task('css', function () {
+  return gulp.src('./sass/**/*.css')
+    .pipe(gulp.dest('./dist/css'));
+});
+
+gulp.task('webfonts', function () {
+  return gulp.src('./webfonts/*')
+    .pipe(gulp.dest('./dist/webfonts/'));
 });
  
 gulp.task('sass:watch', function () {

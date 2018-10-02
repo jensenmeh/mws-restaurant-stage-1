@@ -1,12 +1,15 @@
 self.addEventListener('install', function(event) {
 	var urlsToCache = [
 		'/',
-		'restaurant.html',
-		'index.html',
+		'/restaurant.html',
+		'/index.html',
 		'js/main.js',
 		'js/dbhelper.js',
 		'js/restaurant_info.js',
 		'css/styles.css',
+		'css/all.min.css',
+		'webfonts/fa-regular-400.woff2',
+		'webfonts/fa-solid-900.woff2'
 	];
 
 	event.waitUntil(

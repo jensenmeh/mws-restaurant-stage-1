@@ -75,11 +75,35 @@ window.initMap = () => {
     lat: 40.722216,
     lng: -73.987501
   };
-  self.map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 12,
-    center: loc,
-    scrollwheel: false
+  DBHelper.staticMap((error, locations) => {
+    if (error) { // Got an error!
+      console.error(error);
+    } else {
+      self.locations = locations;
+      //generate static map
+      let map = document.getElementById('map');
+      let staticMap = document.createElement('img');
+      staticMap.setAttribute('id', 'staticMap');
+      staticMap.setAttribute('alt', 'map of restaurants');
+      staticMap.setAttribute('src', `https://maps.googleapis.com/maps/api/staticmap?center=${loc.lat},${loc.lng}&zoom=12&size=640x400&format=jpg&maptype=roadmap${locations}&key=AIzaSyAZ9w5K27ZAA9dvNJ4AP9fUDWHQiUfGgMA`);
+      map.appendChild(staticMap);
+
+      //add event listener to switch maps
+      staticMap.addEventListener('click', function(event) {
+        //remove static map
+        map.removeChild(staticMap);
+        //initalize dynamic map
+        self.map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 12,
+          center: loc,
+          scrollwheel: false
+        });
+        addMarkersToMap();
+        
+      });
+    }
   });
+
   updateRestaurants();
 }
 
@@ -193,6 +217,22 @@ createRestaurantHTML = (restaurant) => {
  */
 addMarkersToMap = (restaurants = self.restaurants) => {
   restaurants.forEach(restaurant => {
+    // Add marker to the map
+    const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.map);
+    google.maps.event.addListener(marker, 'click', () => {
+      window.location.href = marker.url
+    });
+    self.markers.push(marker);
+  });
+}
+
+addMarkersToStaticMap = (restaurants = self.restaurants) => {
+  restaurants.forEach(restaurant => {
+    let loc = {
+      lat: 40.722216,
+      lng: -73.987501
+    };
+
     // Add marker to the map
     const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.map);
     google.maps.event.addListener(marker, 'click', () => {

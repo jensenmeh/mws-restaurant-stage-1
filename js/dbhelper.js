@@ -35,7 +35,6 @@ class DBHelper {
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
-
     fetchData();
 
     // get all restaurant data from db
@@ -306,6 +305,23 @@ class DBHelper {
       animation: google.maps.Animation.DROP}
     );
     return marker;
+  }
+
+  //Generate initial static map for webpage
+  static staticMap(callback) {
+
+    //get marker locations for static map
+    DBHelper.fetchRestaurants((error, restaurants) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        let markerLoc = "";
+        restaurants.forEach(restaurant => {
+          markerLoc += `&markers=color:red%7C${restaurant.latlng.lat},${restaurant.latlng.lng}`;
+        })
+        callback(null, markerLoc);
+      }
+    });
   }
 
 }

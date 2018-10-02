@@ -101,6 +101,15 @@ nav h1 a {
   height: 400px;
   width: 100%;
   background-color: #ccc;
+  overflow: hidden;
+  text-align: center;
+}
+
+#staticMap {
+  height: 400px;
+  position: relative;
+  right: 50%;
+  margin-right: -100%;
 }
 /* ====================== Restaurant Filtering ====================== */
 .filter-options {
