@@ -5,11 +5,17 @@
 
 //create db
 var dbPromise = idb.open('json-db', 1, function(upgradeDb) {
+  //create store to hold restaurants data
   var restaurantsStore = upgradeDb.createObjectStore('restaurants', {
     keyPath: 'id'
   });
+  //create store to hold reviews data
   var reviewsStore = upgradeDb.createObjectStore('reviews', {
     keyPath: 'id'
+  });
+  //create store to hold unsubmitted reviews to be uploaded
+  var pendReviewsStore = upgradeDb.createObjectStore('pendReviews', {
+    keyPath: 'createdAt'
   });
 });
 
@@ -85,6 +91,7 @@ class DBHelper {
 
     // get all restaurant data from db
     function fetchData() {
+      //get reviews from db
       dbPromise.then(function(db) {
         var reviewsData = db.transaction('reviews').objectStore('reviews');
         return reviewsData.getAll().then(function(reviews) {
@@ -96,7 +103,7 @@ class DBHelper {
             fetchData();
           }
         })
-      }); 
+      });
     }
 
     //fetch reviews data
@@ -140,6 +147,24 @@ class DBHelper {
     }
   }
 
+  //pass json object to server
+  static addReviewToServer(data) {
+    fetch(DBHelper.DATABASE_URL_REVIEWS, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    }).then(function(response) {
+      return response.json();
+    }).then(function(review) {
+        //update local idb
+        DBHelper.addReview(review); 
+    }).catch(function(error) {
+      console.log(error.message); 
+    })
+  }
+
   //add new reviews to idb
   static addReview(review) {
     dbPromise.then(function(db) {
@@ -149,6 +174,39 @@ class DBHelper {
     });
     //reload page
     window.location.reload();
+  }
+
+  //save review for upload
+  static saveReview(review) {
+    dbPromise.then(function(db) {
+      var tx = db.transaction('pendReviews', 'readwrite');
+      var keyValStore = tx.objectStore('pendReviews');
+      keyValStore.put(review);
+    });
+
+    window.location.reload();
+  }
+
+  //add saved reviews to idb
+  static addPendingReviewToServer() {
+    dbPromise.then(function(db) {
+      var pendingReviews = db.transaction('pendReviews').objectStore('pendReviews');
+      return pendingReviews.getAll().then(function(pendReviews) {
+        pendReviews.forEach(function(pendReview) {
+          DBHelper.addReviewToServer(pendReview);
+          //clear saved review
+          deletePendingReview(pendReview.createdAt);
+        });
+      })
+    });
+
+    function deletePendingReview(review) {
+      dbPromise.then(function(db) {
+        var tx = db.transaction('pendReviews', 'readwrite');
+        tx.objectStore('pendReviews').delete(review);
+        return tx.complete;
+      });
+    }
   }
 
   /**

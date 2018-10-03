@@ -1,6 +1,12 @@
 let restaurant;
 var map;
 
+//wait for online status
+window.addEventListener('online', function() {
+  console.log("Online again!!");
+  DBHelper.addPendingReviewToServer();
+});
+
 /**
  * Initialize Google map, called from HTML.
  */
@@ -364,27 +370,9 @@ createReview = () => {
     data['updatedAt'] = Date.now();
 
     if(navigator.onLine) {
-      addReviewToDB();
+      DBHelper.addReviewToServer(data);
     } else {
-      window.addEventListener('online', addReviewToDB);
-    }
-
-    //pass json object to server
-    function addReviewToDB() {
-      fetch(DBHelper.DATABASE_URL_REVIEWS, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers:{
-          'Content-Type': 'application/json'
-        }
-      }).then(function(response) {
-        return response.json();
-      }).then(function(review) {
-        //update local idb
-        DBHelper.addReview(review); 
-      }).catch(function(error) {
-        console.log(error.message); 
-      })
+      DBHelper.saveReview(data);
     }
   });
 }
