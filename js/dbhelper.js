@@ -96,12 +96,24 @@ class DBHelper {
         var reviewsData = db.transaction('reviews').objectStore('reviews');
         return reviewsData.getAll().then(function(reviews) {
           const review = reviews.filter(r => r.restaurant_id == id);
-          if(review.length !== 0) {
-            callback(null, review);
-          } else {
-            fetchReviewsData(id);
-            fetchData();
-          }
+          fetchPendingReviews(review);
+        })
+      });
+    }
+
+    function fetchPendingReviews(review) {
+      //get pending reviews from db
+      dbPromise.then(function(db) {
+        var pendReviewsData = db.transaction('pendReviews').objectStore('pendReviews');
+        return pendReviewsData.getAll().then(function(reviews) {
+            let pendReview = reviews.filter(r => r.restaurant_id == id);
+            review = review.concat(pendReview);
+            if(review.length !== 0) {
+              callback(null, review);
+            } else {
+              fetchReviewsData(id);
+              fetchData();
+            }
         })
       });
     }
